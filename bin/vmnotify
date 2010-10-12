@@ -1,0 +1,91 @@
+#!/bin/sh
+
+########################################################################
+# vmnotify - An Asterisk-VoiceMail compatible MWI notification script
+# (c) 2007 Sipwise. All rights reserved.
+#
+# Author: Andreas Granig <agranig@sipwise.com>
+#
+# Usage: vmnotify <context> <user> <messages>
+#
+########################################################################
+
+FILE_DEBUG="1"
+CONSOLE_DEBUG="1"
+LOGFILE="/tmp/vmnotify.log"
+VERBOSE=""
+
+BASE=$(dirname $0)
+SIPSAK="/usr/bin/sipsak"
+UUIDGEN="/usr/bin/uuidgen"
+SIPFILE="$BASE/../etc/mwi.sip"
+CONFFILE="$BASE/../etc/vmnotify.conf"
+
+
+function debug
+{
+	TIME=$(date "+%b %d %T")
+	if [ "x$FILE_DEBUG" = "x1" ]; then 
+		echo "$TIME DEBUG: $@" >> $LOGFILE
+	fi
+	if [ "x$CONSOLE_DEBUG" = "x1" ]; then 
+		echo "DEBUG: $@"
+	fi
+}
+
+function error
+{
+	TIME=$(date "+%b %d %T")
+	echo "$TIME ERROR: $@" >> $LOGFILE
+	if [ "x$CONSOLE_DEBUG" = "x1" ]; then 
+		echo "ERROR: $@"
+	fi
+	exit 1
+}
+
+test -f $CONFFILE || error "Config file not found"
+test -f $SIPSAK || error "sipsak command not found"
+test -f $UUIDGEN || error "uuidgen command not found"
+
+. $CONFFILE
+
+debug "Arguments: $@"
+
+if [ "x$SERVER" = "x" ]; then
+	error "Config parameter SERVER not specified"
+fi
+
+CONTEXT=$1
+USER=$2
+MESSAGES=$3
+
+if [ "x$CONTEXT" = "x" ]; then
+	error "Usage: $0 <context> <cli> <messages>"
+fi
+if [ "x$USER" = "x" ]; then
+	error "Usage: $0 <context> <cli> <messages>"
+fi
+if [ "x$MESSAGES" = "x" ]; then
+	error "Usage: $0 <context> <cli> <messages>"
+fi
+
+URI="sip:$USER@$SERVER"
+
+if [ "x$MESSAGES" = "x0" ]; then
+	MW="no"
+else
+	MW="yes"
+fi
+
+NEW=$MESSAGES
+OLD="0" # asterisk doesn't send number of old messages!
+
+BODY_MW="Messages-Waiting: $MW"
+BODY_VM="Voice-Message: $NEW/$OLD"
+BODYLEN=$((${#BODY_MW}+${#BODY_VM}+2))
+CALL_ID=$($UUIDGEN)@voip.sipwise.local
+MBID=$USER
+
+$SIPSAK -f $SIPFILE \
+	-G -g "!BODY_MW!$BODY_MW!BODY_VM!$BODY_VM!BODYLEN!$BODYLEN!CALL_ID!$CALL_ID!MBID!$MBID!" \
+	$VERBOSE -E udp -s $URI
