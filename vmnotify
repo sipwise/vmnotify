@@ -10,16 +10,8 @@
 #
 ########################################################################
 
-FILE_DEBUG="1"
-CONSOLE_DEBUG="1"
-LOGFILE="/tmp/vmnotify.log"
-VERBOSE=""
 
-BASE=$(dirname $0)
-SIPSAK="/usr/bin/sipsak"
-UUIDGEN="/usr/bin/uuidgen"
-SIPFILE="$BASE/../etc/mwi.sip"
-CONFFILE="$BASE/../etc/vmnotify.conf"
+CONFFILE="/etc/sipwise-vmnotify/vmnotify.conf"
 
 
 function debug
@@ -43,11 +35,13 @@ function error
 	exit 1
 }
 
+
 test -f $CONFFILE || error "Config file not found"
+. $CONFFILE
+
 test -f $SIPSAK || error "sipsak command not found"
 test -f $UUIDGEN || error "uuidgen command not found"
 
-. $CONFFILE
 
 debug "Arguments: $@"
 
