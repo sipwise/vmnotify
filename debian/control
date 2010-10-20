@@ -1,4 +1,4 @@
-Source: sipwise-vmnotify
+Source: ngcp-vmnotify
 Section: utils
 Priority: extra
 Maintainer: Jon Bonilla <jbonilla@sipwise.com>
@@ -6,7 +6,7 @@ Build-Depends: debhelper (>= 5)
 Standards-Version: 3.8.4
 Homepage: http://sipwise.com/
 
-Package: sipwise-vmnotify
+Package: ngcp-vmnotify
 Architecture: all
 Depends: ${shlibs:Depends}, ${misc:Depends}, sipsak, bash, uuid-runtime
 Description: mwi generator

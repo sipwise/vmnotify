@@ -11,7 +11,7 @@
 ########################################################################
 
 
-CONFFILE="/etc/sipwise-vmnotify/vmnotify.conf"
+CONFFILE="/etc/ngcp-vmnotify/vmnotify.conf"
 
 
 function debug

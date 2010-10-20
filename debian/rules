@@ -27,11 +27,11 @@ install: build
 	dh_testdir
 	dh_testroot
 	dh_clean -k
-	dh_installdirs usr/bin  etc/sipwise-vmnotify
+	dh_installdirs usr/bin  etc/ngcp-vmnotify
 
-	install -m 755 vmnotify		debian/sipwise-vmnotify/usr/bin/vmnotify
-	install -m 644 vmnotify.conf	debian/sipwise-vmnotify/etc/sipwise-vmnotify/vmnotify.conf
-	install -m 644 mwi.sip		debian/sipwise-vmnotify/etc/sipwise-vmnotify/mwi.sip
+	install -m 755 vmnotify		debian/ngcp-vmnotify/usr/bin/vmnotify
+	install -m 644 vmnotify.conf	debian/ngcp-vmnotify/etc/ngcp-vmnotify/vmnotify.conf
+	install -m 644 mwi.sip		debian/ngcp-vmnotify/etc/ngcp-vmnotify/mwi.sip
 
 # Build architecture-dependent files here.
 binary-arch: build install
