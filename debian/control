@@ -9,5 +9,5 @@ Homepage: http://sipwise.com/
 Package: ngcp-vmnotify
 Architecture: all
 Depends: ${shlibs:Depends}, ${misc:Depends}, sipsak, bash, uuid-runtime
-Description: mwi generator
- Generates mwi notifications for the ngcp voicemail system.
+Description: mwi generator for NGCP platform
+ This program generates mwi notifications for the NGCP voicemail system.
