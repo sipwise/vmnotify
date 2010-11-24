@@ -76,7 +76,7 @@ OLD="0" # asterisk doesn't send number of old messages!
 
 BODY_MW="Messages-Waiting: $MW"
 BODY_VM="Voice-Message: $NEW/$OLD"
-BODYLEN=$((${#BODY_MW}+${#BODY_VM}+2))
+BODYLEN=$((${#BODY_MW}+2+${#BODY_VM}+2))
 CALL_ID=$($UUIDGEN)@voip.sipwise.local
 MBID=$USER
 
