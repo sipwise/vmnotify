@@ -12,26 +12,24 @@
 
 
 CONFFILE="/etc/ngcp-vmnotify/vmnotify.conf"
-
+LOGGER="/usr/bin/logger -i -t vmnotify"
 
 function debug
 {
-	TIME=$(date "+%b %d %T")
-	if [ "x$FILE_DEBUG" = "x1" ]; then 
-		echo "$TIME DEBUG: $@" >> $LOGFILE
-	fi
+	LOG_ARGS="-p daemon.debug"
 	if [ "x$CONSOLE_DEBUG" = "x1" ]; then 
-		echo "DEBUG: $@"
+		LOG_ARGS="$LOG_ARGS -s"
 	fi
+	echo "$@" | $LOGGER $LOG_ARGS
 }
 
 function error
 {
-	TIME=$(date "+%b %d %T")
-	echo "$TIME ERROR: $@" >> $LOGFILE
+	LOG_ARGS="-p daemon.err"
 	if [ "x$CONSOLE_DEBUG" = "x1" ]; then 
-		echo "ERROR: $@"
+		LOG_ARGS="$LOG_ARGS -s"
 	fi
+	echo "$@" | $LOGGER $LOG_ARGS
 	exit 1
 }
 
