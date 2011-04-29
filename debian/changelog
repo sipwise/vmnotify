@@ -1,3 +1,15 @@
+ngcp-vmnotify (0.2.0) unstable; urgency=low
+
+  [ Jon Bonilla ]
+  * Update copyright information.
+  * Improve package description.
+
+  [ Andreas Granig ]
+  * Fixed content length of body.
+  * Log to syslog.
+
+ -- Michael Prokop <mprokop@sipwise.com>  Fri, 29 Apr 2011 02:31:37 +0200
+
 ngcp-vmnotify (0.1.0) unstable; urgency=low
 
   * Initial release.
