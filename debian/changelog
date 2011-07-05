@@ -1,3 +1,8 @@
+ngcp-vmnotify (2.2.0) unstable; urgency=low
+  [ Jon Bonilla ]
+  * Align debian version with package version in svn repo
+  * Set shell to bash instead of sh
+
 ngcp-vmnotify (0.2.0) unstable; urgency=low
 
   [ Jon Bonilla ]
