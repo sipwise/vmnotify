@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 ########################################################################
 # vmnotify - An Asterisk-VoiceMail compatible MWI notification script
