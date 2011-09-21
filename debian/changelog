@@ -1,3 +1,9 @@
+ngcp-vmnotify (2.2.1) unstable; urgency=low
+
+  * Depend on ngcp-sipsak instead of sipsak.
+
+ -- Andreas Granig <agranig@sipwise.com>  Wed, 21 Sep 2011 19:05:40 +0200
+
 ngcp-vmnotify (2.2.0) unstable; urgency=low
 
   [ Jon Bonilla ]
