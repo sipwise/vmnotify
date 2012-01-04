@@ -1,7 +1,7 @@
 Source: ngcp-vmnotify
 Section: utils
 Priority: extra
-Maintainer: Jon Bonilla <jbonilla@sipwise.com>
+Maintainer: Sipwise Development Team <support@sipwise.com>
 Build-Depends: debhelper (>= 5)
 Standards-Version: 3.9.2
 Homepage: http://sipwise.com/
