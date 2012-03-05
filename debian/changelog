@@ -1,3 +1,12 @@
+ngcp-vmnotify (2.2.2) unstable; urgency=low
+
+  [ mprokop ]
+  * control: Drop depends on bash package
+  * control: Bump Standards-Version to 3.9.2
+  * control: Set Maintainer field to Sipwise Development Team
+
+ -- Andrew Pogrebennyk <apogrebennyk@sipwise.com>  Mon, 05 Mar 2012 16:02:41 +0100
+
 ngcp-vmnotify (2.2.1) unstable; urgency=low
 
   * Depend on ngcp-sipsak instead of sipsak.
