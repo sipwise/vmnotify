@@ -1,3 +1,14 @@
+ngcp-vmnotify (2.3.0) unstable; urgency=low
+
+  [ Michael Prokop ]
+  * Bump Standards-Version to 3.9.3
+  * wrap and sort items in Debian packaging files
+
+  [ Jon Bonilla ]
+  * Send Via based on SIPFILE instead of autogeneated
+
+ -- Andrew Pogrebennyk <apogrebennyk@sipwise.com>  Wed, 07 Aug 2013 15:12:08 +0200
+
 ngcp-vmnotify (2.2.2) unstable; urgency=low
 
   [ mprokop ]
