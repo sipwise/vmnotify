@@ -1,3 +1,9 @@
+ngcp-vmnotify (2.3.1) unstable; urgency=low
+
+  * [6c34f51] MT#4683 Fix params to sipsak.
+
+ -- Andreas Granig <agranig@sipwise.com>  Mon, 28 Oct 2013 12:37:45 +0100
+
 ngcp-vmnotify (2.3.0) unstable; urgency=low
 
   [ Michael Prokop ]
