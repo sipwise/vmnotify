@@ -1,3 +1,9 @@
+ngcp-vmnotify (2.3.1+0~mr3.3) unstable; urgency=low
+
+  * New release.
+
+ -- Sipwise Jenkins Builder <jenkins@sipwise.com>  Sat, 01 Feb 2014 20:02:32 +0100
+
 ngcp-vmnotify (2.3.1) unstable; urgency=low
 
   * [6c34f51] MT#4683 Fix params to sipsak.
