@@ -3,11 +3,14 @@ Section: utils
 Priority: extra
 Maintainer: Sipwise Development Team <support@sipwise.com>
 Build-Depends: debhelper (>= 5)
-Standards-Version: 3.9.3
+Standards-Version: 3.9.5
 Homepage: http://sipwise.com/
 
 Package: ngcp-vmnotify
 Architecture: all
-Depends: ngcp-sipsak, uuid-runtime, ${misc:Depends}, ${shlibs:Depends}
+Depends: ngcp-sipsak,
+         uuid-runtime,
+         ${misc:Depends},
+         ${shlibs:Depends}
 Description: mwi generator for NGCP platform
  This program generates mwi notifications for the NGCP voicemail system.
