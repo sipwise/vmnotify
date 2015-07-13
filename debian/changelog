@@ -1,3 +1,12 @@
+ngcp-vmnotify (2.11.0.0+0~mr4.1.0.0) unstable; urgency=low
+
+  [ Alexander Lutay ]
+  * [48e5882] MT#7505 Add .gitreview file for vmnotify
+
+  [ Sipwise Jenkins Builder ]
+
+ -- Sipwise Jenkins Builder <jenkins@sipwise.com>  Mon, 13 Jul 2015 15:40:31 +0200
+
 ngcp-vmnotify (2.10.0.0+0~mr4.0.0.0) unstable; urgency=low
 
   [ Michael Prokop ]
