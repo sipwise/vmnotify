@@ -1,3 +1,12 @@
+ngcp-vmnotify (2.11.3.0+0~mr4.1.3.0) unstable; urgency=medium
+
+  [ Andreas Granig ]
+  * [b096e7f] MT#17517 Start sipsak in bg and force local ip
+
+  [ Sipwise Jenkins Builder ]
+
+ -- Sipwise Jenkins Builder <jenkins@sipwise.com>  Tue, 09 Feb 2016 12:52:33 +0100
+
 ngcp-vmnotify (2.11.2.0+0~mr4.1.2.0) unstable; urgency=medium
 
   * New release.
