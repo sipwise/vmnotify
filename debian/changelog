@@ -1,3 +1,19 @@
+ngcp-vmnotify (2.14.0.0+0~mr4.4.0.0) unstable; urgency=medium
+
+  [ Guillem Jover ]
+  * [9eccc8f] MT#16473 Convert debian/copyright to machine-readable format
+  * [cbc2f26] MT#18331 Remove unused LOGFILE variable
+
+  [ Andreas Granig ]
+  * [94f3469] MT#17517 Start sipsak in bg and force local ip
+
+  [ Michael Prokop ]
+  * [c29bb68] MT#17699 Bump Standards-Version to 3.9.7
+
+  [ Sipwise Jenkins Builder ]
+
+ -- Sipwise Jenkins Builder <jenkins@sipwise.com>  Mon, 21 Mar 2016 22:40:04 +0100
+
 ngcp-vmnotify (2.13.0.0+0~mr4.3.0.0) unstable; urgency=medium
 
   * New release.
