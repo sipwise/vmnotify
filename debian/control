@@ -11,6 +11,5 @@ Architecture: all
 Depends: ngcp-sipsak,
          uuid-runtime,
          ${misc:Depends},
-         ${shlibs:Depends}
 Description: mwi generator for NGCP platform
  This program generates mwi notifications for the NGCP voicemail system.
