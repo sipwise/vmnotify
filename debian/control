@@ -8,7 +8,7 @@ Homepage: http://sipwise.com/
 
 Package: ngcp-vmnotify
 Architecture: all
-Depends: ngcp-sipsak,
+Depends: sipsak (>= 0.9.6+git20160713),
          uuid-runtime,
          ${misc:Depends},
 Description: mwi generator for NGCP platform
