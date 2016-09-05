@@ -1,0 +1,8 @@
+Verified+1: Jenkins Jenkins
+Code-Review+2: Alexander Lutay <alutay@sipwise.com>
+Code-Review+2: Guillem Jover <gjover@sipwise.com>
+Submitted-by: Víctor Seva <vseva@sipwise.com>
+Submitted-at: Mon, 05 Sep 2016 15:56:33 +0200
+Reviewed-on: http://gerrit.mgm.sipwise.com/8039
+Project: vmnotify
+Branch: refs/heads/master
