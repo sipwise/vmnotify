@@ -1,3 +1,10 @@
+ngcp-vmnotify (5.0.0.0+0~mr5.0.0.0) unstable; urgency=medium
+
+  [ Victor Seva ]
+  * [363dbba] MT#22363 depends on sipsak from backports
+
+ -- Alexander Lutay <alutay@sipwise.com>  Fri, 21 Oct 2016 15:11:27 +0200
+
 ngcp-vmnotify (2.16.0.0+0~mr5.0.0.0) unstable; urgency=medium
 
   [ Guillem Jover ]
