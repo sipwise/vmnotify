@@ -1,0 +1,67 @@
+#!/usr/bin/perl -w
+use strict;
+
+use URI;
+use NGCP::API::Client;
+use TryCatch;
+use Sys::Syslog qw(:standard :macros);
+use Data::Dumper;
+
+sub DEBUG {
+    my ($msg) = @_;
+    # only log debug to syslog to not clutter console
+    syslog(LOG_DEBUG, $msg);
+}
+
+sub INFO {
+    my ($msg) = @_;
+    print $msg, "\n";
+    syslog(LOG_INFO, $msg);
+}
+
+sub ERROR {
+    my ($msg) = @_;
+    print STDERR $msg, "\n";
+    syslog(LOG_ERR, $msg);
+}
+
+my $from = $ARGV[0];
+my $dest = $ARGV[1];
+my $mailbox = $ARGV[2];
+my $caller = $ARGV[3];
+my $duration = $ARGV[4];
+my $date = $ARGV[5];
+my $body = $ARGV[6];
+
+$from =~ s/\s+//g;
+
+openlog("vmpagernotify", "ndelay,pid", LOG_LOCAL0);
+
+DEBUG("sending pager notification to $dest using sender $from");
+DEBUG("mailbox is $mailbox, caller is $caller, duration is $duration");
+DEBUG("body is '$body'");
+
+my $client = new NGCP::API::Client;
+my $res;
+
+$res = $client->request('GET', "/api/subscribers/?alias=$mailbox");
+unless($res->is_success) {
+    ERROR "Failed to fetch subscriber for alias $mailbox, aborting!";
+    exit 1;
+}
+my $subs = $res->as_hash->{_embedded}->{'ngcp:subscribers'};
+unless(ref $subs eq 'HASH') {
+    ERROR "Failed to fetch single subscriber for alias $mailbox, aborting!";
+    exit 1;
+}
+
+my $content = {
+	subscriber_id => $subs->{id},
+	caller => $from,
+	callee => $dest,
+	text => $body,
+};
+
+
+
+$res = $client->request('POST', '/api/sms/?skip_checks=true&skip_journal=false', $content);
