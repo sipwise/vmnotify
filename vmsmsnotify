@@ -1,67 +1,113 @@
 #!/usr/bin/perl -w
 use strict;
 
-use URI;
+use English;
+use Readonly;
 use NGCP::API::Client;
-use TryCatch;
-use Sys::Syslog qw(:standard :macros);
-use Data::Dumper;
+use Config::Any;
+use Log::Log4perl;
 
-sub DEBUG {
-    my ($msg) = @_;
-    # only log debug to syslog to not clutter console
-    syslog(LOG_DEBUG, $msg);
-}
+Readonly my $CONF_FILE => '/etc/ngcp-vmnotify/vmnotify.conf';
 
-sub INFO {
-    my ($msg) = @_;
-    print $msg, "\n";
-    syslog(LOG_INFO, $msg);
-}
-
-sub ERROR {
-    my ($msg) = @_;
-    print STDERR $msg, "\n";
-    syslog(LOG_ERR, $msg);
-}
-
-my $from = $ARGV[0];
-my $dest = $ARGV[1];
-my $mailbox = $ARGV[2];
-my $caller = $ARGV[3];
-my $duration = $ARGV[4];
-my $date = $ARGV[5];
-my $body = $ARGV[6];
-
-$from =~ s/\s+//g;
-
-openlog("vmpagernotify", "ndelay,pid", LOG_LOCAL0);
-
-DEBUG("sending pager notification to $dest using sender $from");
-DEBUG("mailbox is $mailbox, caller is $caller, duration is $duration");
-DEBUG("body is '$body'");
-
-my $client = new NGCP::API::Client;
-my $res;
-
-$res = $client->request('GET', "/api/subscribers/?alias=$mailbox");
-unless($res->is_success) {
-    ERROR "Failed to fetch subscriber for alias $mailbox, aborting!";
-    exit 1;
-}
-my $subs = $res->as_hash->{_embedded}->{'ngcp:subscribers'};
-unless(ref $subs eq 'HASH') {
-    ERROR "Failed to fetch single subscriber for alias $mailbox, aborting!";
-    exit 1;
-}
-
-my $content = {
-	subscriber_id => $subs->{id},
-	caller => $from,
-	callee => $dest,
-	text => $body,
+my %CONFIG = %{
+     Config::Any->load_files({
+        files   => [ $CONF_FILE ],
+        use_ext => 1
+     })->[0]->{$CONF_FILE}
+        or do {
+            log_syslog(
+                "$PROGRAM_NAME error: Cannot load config $CONF_FILE: $ERRNO");
+                exit 1;
+     };
 };
 
+my $debug = $CONFIG{DEBUG} ? "DEBUG" : "INFO";
 
+Log::Log4perl->init(\<<EOF);
+log4perl.category.vmnotify=$debug, SYSLOG, SCREEN
 
-$res = $client->request('POST', '/api/sms/?skip_checks=true&skip_journal=false', $content);
+log4perl.appender.SYSLOG=Log::Dispatch::Syslog
+log4perl.appender.SYSLOG.facility=local0
+log4perl.appender.SYSLOG.ident=vmnotify
+log4perl.appender.SYSLOG.layout=PatternLayout
+log4perl.appender.SYSLOG.layout.ConversionPattern=%-5p %m%n
+
+log4perl.appender.SCREEN=Log::Log4perl::Appender::Screen
+log4perl.appender.SCREEN.mode=append
+log4perl.appender.SCREEN.layout=PatternLayout
+log4perl.appender.SCREEN.layout.ConversionPattern=%-5p %m%n
+EOF
+
+#----------------------------------------------------------------------
+
+my $log = Log::Log4perl->get_logger("vmnotify");
+
+sub send_notify {
+
+    my $from = $ARGV[0];
+    my $dest = $ARGV[1];
+    my $mailbox = $ARGV[2];
+    my $caller = $ARGV[3];
+    my $duration = $ARGV[4];
+    my $date = $ARGV[5];
+    my $body = $ARGV[6];
+
+    $from =~ s/\s+//g;
+
+    my $log_str = sprintf <<EOF,
+vmsmsnotify from=%s dest=%s mailbox=%s caller=%s duration=%s date=%s body=%s
+EOF
+        $from, $dest, $mailbox, $caller, $duration, $date, $body;
+
+    eval {
+        my $client = new NGCP::API::Client;
+
+        my $res = $client->request('GET', "/api/subscribers/?alias=$mailbox");
+        unless($res->is_success) {
+            die "Failed to fetch subscriber for alias $mailbox, aborting!";
+        }
+
+        my $subs = $res->as_hash->{_embedded}->{'ngcp:subscribers'};
+        unless(ref $subs eq 'HASH') {
+            die "Failed to fetch single subscriber for alias $mailbox, aborting!";
+        }
+
+        my $content = {
+            subscriber_id => $subs->{id},
+            caller => $from,
+            callee => $dest,
+            text => $body,
+        };
+
+        $res = $client->request(
+                'POST',
+                '/api/sms/?skip_checks=true&skip_journal=false',
+                $content
+        );
+
+        die $res->status_line,"\n" unless $res->is_success;
+    };
+    if ($EVAL_ERROR) {
+        die sprintf "Cannot send %s error=%s", $log_str, $EVAL_ERROR;
+    } else {
+        $log->debug($log_str);
+    }
+
+    return;
+}
+
+sub main {
+    eval {
+        send_notify();
+    };
+    if ($EVAL_ERROR) {
+        $log->error($EVAL_ERROR);
+        exit 1;
+    }
+
+    return;
+}
+
+main();
+
+exit 0;
