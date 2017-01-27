@@ -49,28 +49,30 @@ fi
 
 CONTEXT=$1
 USER=$2
-MESSAGES=$3
+NEW_MESSAGES=$3
+OLD_MESSAGES=$4
+URGENT_MESSAGES=$5
 
 if [ "x$CONTEXT" = "x" ]; then
-	error "Usage: $0 <context> <cli> <messages>"
+    error "Usage: $0 <context> <cli> <messages>"
 fi
 if [ "x$USER" = "x" ]; then
-	error "Usage: $0 <context> <cli> <messages>"
+    error "Usage: $0 <context> <cli> <messages>"
 fi
-if [ "x$MESSAGES" = "x" ]; then
-	error "Usage: $0 <context> <cli> <messages>"
+if [ "x$NEW_MESSAGES" = "x" ]; then
+    error "Usage: $0 <context> <cli> <messages>"
 fi
 
 URI="sip:$USER@$SERVER"
 
-if [ "x$MESSAGES" = "x0" ]; then
-	MW="no"
+if [ "x$NEW_MESSAGES" = "x0" ]; then
+    MW="no"
 else
-	MW="yes"
+    MW="yes"
 fi
 
-NEW=$MESSAGES
-OLD="0" # asterisk doesn't send number of old messages!
+NEW=$NEW_MESSAGES
+OLD=$OLD_MESSAGES
 
 BODY_MW="Messages-Waiting: $MW"
 BODY_VM="Voice-Message: $NEW/$OLD"
@@ -80,5 +82,20 @@ MBID=$USER
 BRANCH=$($UUIDGEN)
 
 nohup $SIPSAK -S -i -k $LOCAL_IP -l 5081 -f $SIPFILE \
-	-G -g "!BODY_MW!$BODY_MW!BODY_VM!$BODY_VM!BODYLEN!$BODYLEN!CALL_ID!$CALL_ID!MBID!$MBID!BRANCH!$BRANCH!" \
-	$VERBOSE -E udp -s $URI 1>/dev/null 2>/dev/null &
+    -G -g "!BODY_MW!$BODY_MW!BODY_VM!$BODY_VM!BODYLEN!$BODYLEN!CALL_ID!$CALL_ID!MBID!$MBID!BRANCH!$BRANCH!" \
+    $VERBOSE -E udp -s $URI 1>/dev/null 2>/dev/null &
+
+# extended vmnotify format
+if [ -n "$6" ] ; then
+    MSGNUM=$6
+    FROM=$7
+    DATE=$8
+    DURATION=$9
+    BASE_URL="http://internal-lb-internal-api-1205475873.eu-central-1.elb.amazonaws.com/v1/voicemail"
+    FULL_URL="${BASE_URL}/${USER}/notify"
+    BODY=$(cat <<EOF
+{"caller":"${FROM}", "callee":"${USER}", "recording_id":"${MSGNUM}", "timestamp":"${DATE}", "duration":"${DURATION}"}
+EOF
+)
+    curl -H "Content-Type: application/json" -X POST -d "${BODY}" "${FULL_URL}"
+fi
