@@ -1,84 +1,220 @@
-#!/bin/bash
-
+#!/usr/bin/perl -w
 ########################################################################
 # vmnotify - An Asterisk-VoiceMail compatible MWI notification script
-# (c) 2007 Sipwise. All rights reserved.
+# (c) 2017 Sipwise GmbH. All rights reserved.
 #
-# Author: Andreas Granig <agranig@sipwise.com>
-#
-# Usage: vmnotify <context> <user> <messages>
+# Author: Kirill Solomko <ksolomko@sipwise.com>
 #
 ########################################################################
+use strict;
+use warnings;
+use English;
+use Readonly;
+use Log::Log4perl qw(:easy);
+use POSIX qw(strftime);
+use Readonly;
+use Config::Any;
+use Sys::Syslog qw(:DEFAULT :macros setlogsock);
+use IO::Socket;
+use Data::UUID;
+use Data::Dumper;
+use HTTP::Request;
+use LWP::UserAgent;
+use JSON;
 
+unless (scalar @ARGV) {
+    print <<USAGE;
+==
+    vmnotify - An Asterisk-VoiceMail compatible MWI notification script
+==
+$PROGRAM_NAME [options]
+Options:
+    [basic]
+    <context>         - voicemail context (default: "default")
+    <user>            - destination user
+    <new messages>    - amount of new messages
+    [old messages]    - amount of old messages
+    [urgent messages] - amount of urgent messages
 
-CONFFILE="/etc/ngcp-vmnotify/vmnotify.conf"
-LOGGER="/usr/bin/logger -i -t vmnotify"
-
-function debug
-{
-	LOG_ARGS="-p daemon.debug"
-	if [ "x$CONSOLE_DEBUG" = "x1" ]; then 
-		LOG_ARGS="$LOG_ARGS -s"
-	fi
-	echo "$@" | $LOGGER $LOG_ARGS
+    [extended]
+    <msgnum>          - message number
+    <from>            - from user
+    <date>            - datetime string
+    <duration>        - mesasge duration
+USAGE
+    exit 0;
 }
 
-function error
-{
-	LOG_ARGS="-p daemon.err"
-	if [ "x$CONSOLE_DEBUG" = "x1" ]; then 
-		LOG_ARGS="$LOG_ARGS -s"
-	fi
-	echo "$@" | $LOGGER $LOG_ARGS
-	exit 1
+Readonly my $CONF_FILE => '/etc/ngcp-vmnotify/vmnotify.conf';
+
+my %CONFIG = %{
+     Config::Any->load_files({
+        files   => [ $CONF_FILE ],
+        use_ext => 1
+     })->[0]->{$CONF_FILE}
+        or do {
+            log_syslog(
+                "$PROGRAM_NAME error: Cannot load config $CONF_FILE: $ERRNO");
+                exit 1;
+     };
+};
+
+my $debug = $CONFIG{DEBUG} eq "yes" ? "DEBUG" : "INFO";
+
+Log::Log4perl->init(\<<EOF);
+log4perl.category.vmnotify=$debug, SYSLOG, SCREEN
+
+log4perl.appender.SYSLOG=Log::Dispatch::Syslog
+log4perl.appender.SYSLOG.facility=local0
+log4perl.appender.SYSLOG.ident=vmnotify
+log4perl.appender.SYSLOG.layout=PatternLayout
+log4perl.appender.SYSLOG.layout.ConversionPattern=%-5p %m%n
+
+log4perl.appender.SCREEN=Log::Log4perl::Appender::Screen
+log4perl.appender.SCREEN.mode=append
+log4perl.appender.SCREEN.layout=PatternLayout
+log4perl.appender.SCREEN.layout.ConversionPattern=%-5p %m%n
+EOF
+
+my $log = Log::Log4perl->get_logger("vmnotify");
+my %data = ();
+
+#----------------------------------------------------------------------
+sub log_syslog {
+    my $str = shift;
+
+    setlogsock "native", "unix", "udp";
+    openlog $PROGRAM_NAME, "pid", LOG_DEBUG;
+    syslog LOG_ERR, '%s', $str ;
+
+    return;
 }
 
+sub gen_callid {
+    my $self = shift;
 
-test -f $CONFFILE || error "Config file not found"
-. $CONFFILE
+    return Data::UUID->create_str();
+}
 
-test -f $SIPSAK || error "sipsak command not found"
-test -f $UUIDGEN || error "uuidgen command not found"
+sub gen_branchid {
+    my @list = ("a".."z",0..9,"A".."Z");
+    return "z9hG4bK" . join "",
+        map { $list[int(rand($#list))] } (1..8);
+}
 
+sub send_mwi_notify {
 
-debug "Arguments: $@"
+    open(my $fh, "<", $CONFIG{SIPFILE})
+        or die "Cannot open file: $CONFIG{SIPFILE}";
+    binmode $fh;
+    my $mwi;
+    while (<$fh>) {
+        $_ =~ s/([^\r])\n/$1\r\n/;
+        $mwi .= $_;
+    }
+    close $fh;
 
-if [ "x$SERVER" = "x" ]; then
-	error "Config parameter SERVER not specified"
-fi
+    die "Empty MWI. Cannot send SIP MWI notification" unless $mwi;
 
-CONTEXT=$1
-USER=$2
-MESSAGES=$3
+    my %macros = (
+        body_mw => "Messages-Waiting: ". ($data{new} ? "yes" : "no"),
+        body_vm => "Voice-Message: $data{new}/$data{old}",
+        call_id => $data{callid},
+        mbid    => $data{user},
+        branch  => gen_branchid(),
+        user    => $data{user},
+        dsthost => $CONFIG{SERVER},
 
-if [ "x$CONTEXT" = "x" ]; then
-	error "Usage: $0 <context> <cli> <messages>"
-fi
-if [ "x$USER" = "x" ]; then
-	error "Usage: $0 <context> <cli> <messages>"
-fi
-if [ "x$MESSAGES" = "x" ]; then
-	error "Usage: $0 <context> <cli> <messages>"
-fi
+    );
+    $macros{bodylen} = length($macros{body_mw})+2+length($macros{body_vm})+2;
 
-URI="sip:$USER@$SERVER"
+    map { $mwi =~ s/\$$_\$/$macros{$_}/mgi; } keys %macros;
 
-if [ "x$MESSAGES" = "x0" ]; then
-	MW="no"
-else
-	MW="yes"
-fi
+    my $sock = IO::Socket::INET->new(PeerAddr => $CONFIG{SERVER},
+                                     LocalAddr => $CONFIG{LOCAL_IP},
+                                     Proto    => 'udp',
+                                     TimeOut  => 3,
+                                     Blocking => 0)
+        or die sprintf "Cannot send voicemail notify to %s %s",
+            $CONFIG{SERVER}, $ERRNO;
 
-NEW=$MESSAGES
-OLD="0" # asterisk doesn't send number of old messages!
+    $sock->send($mwi)
+        or die sprintf
+            "Cannot send vmnotify for user %s: %S", $data{user}, $ERRNO;
 
-BODY_MW="Messages-Waiting: $MW"
-BODY_VM="Voice-Message: $NEW/$OLD"
-BODYLEN=$((${#BODY_MW}+2+${#BODY_VM}+2))
-CALL_ID=$($UUIDGEN)@voip.sipwise.local
-MBID=$USER
-BRANCH=$($UUIDGEN)
+    $sock->close();
 
-nohup $SIPSAK -S -i -k $LOCAL_IP -l 5081 -f $SIPFILE \
-	-G -g "!BODY_MW!$BODY_MW!BODY_VM!$BODY_VM!BODYLEN!$BODYLEN!CALL_ID!$CALL_ID!MBID!$MBID!BRANCH!$BRANCH!" \
-	$VERBOSE -E udp -s $URI 1>/dev/null 2>/dev/null &
+    return;
+}
+
+sub send_ext_notify {
+
+    #BASE_URL="http://internal-lb-internal-api-1205475873.eu-central-1.elb.amazonaws.com/v1/voicemail"
+    my $url = 'https://127.0.0.1:1443';
+
+    my %url_ph = (
+        prefix => 'voicemail',
+        suffix => 'notify',
+        caller => $data{from},
+        caleee => $data{user},
+        callid => $data{callid},
+        token  => '',
+    );
+
+    foreach my $v (qw(prefix suffix caller callee callid token)) {
+        my $t = $url_ph{$v} ? $url_ph{$v}."/" : "";
+        $url =~ s/\$\{$v\}/$t/g;
+    }
+
+    my $ua = new LWP::UserAgent;
+    $ua->agent('NGCP vmnotify 1.0');
+
+    my $r = new HTTP::Request("POST" => $url);
+    $r->header('Content-Type', 'application/json');
+
+    my $json = {
+        caller       => $data{from},
+        callee       => $data{user},
+        recording_id => $data{msgnum},
+        timestamp    => $data{date},
+        duration     => $data{duration},
+    };
+
+    $r->content(encode_json $json);
+
+    $ua->request($r);
+
+    return;
+}
+
+sub main {
+    eval {
+        my $idx = 0;
+        foreach my $arg (qw(context user new old urgent)) {
+            $data{$arg} = $ARGV[$idx] or die "Incorrect arguments list";
+            $idx++;
+        }
+
+        my $extended = 1;
+        foreach my $arg (qw(msgnum from date duration)) {
+            $data{$arg} = $ARGV[$idx] or $extended = 0;
+            $idx++;
+        }
+
+        $data{callid} = gen_uuid().'@voip.sipwise.local';
+
+        send_mwi_notify();
+        send_ext_notify() if $extended;
+    };
+    if ($EVAL_ERROR) {
+        $log->error($EVAL_ERROR);
+        exit 1;
+    }
+
+    return;
+}
+
+main();
+
+exit 0;
+
