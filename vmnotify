@@ -50,6 +50,7 @@ fi
 CONTEXT=$1
 USER=$2
 MESSAGES=$3
+OLD_MESSAGES=$4
 
 if [ "x$CONTEXT" = "x" ]; then
 	error "Usage: $0 <context> <cli> <messages>"
@@ -70,7 +71,7 @@ else
 fi
 
 NEW=$MESSAGES
-OLD="0" # asterisk doesn't send number of old messages!
+OLD=$OLD_MESSAGES
 
 BODY_MW="Messages-Waiting: $MW"
 BODY_VM="Voice-Message: $NEW/$OLD"
