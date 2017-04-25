@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5a166590_6520469c",
+        "filename": "vmnotify",
+        "patchSetId": 9
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 1000013
+      },
+      "writtenOn": "2017-04-25T15:34:27Z",
+      "side": 1,
+      "message": "nice substitution processing. only danger here is if eg $data{new} itself contains one of the replacements (no clue, eg. \"callid\"), those get replaced too. is this ok?",
+      "revId": "81845e51a5a093d989fa704a8737f47f29243378",
+      "serverId": "85315e57-5f03-49c3-83f8-201ae2313a75",
+      "unresolved": false
+    }
+  ]
+}
