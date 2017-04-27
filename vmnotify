@@ -230,7 +230,10 @@ sub main {
         $data{callid} = gen_callid().'@voip.sipwise.local';
 
         send_mwi_notify();
-        send_ext_notify() if $extended;
+        if ($extended &&
+            $CONFIG->{EXT_NOTIFY} && $CONFIG->{EXT_NOTIFY} eq "yes") {
+            send_ext_notify();
+        }
     };
     if ($EVAL_ERROR) {
         $log->error($EVAL_ERROR);
