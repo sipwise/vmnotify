@@ -1,5 +1,7 @@
 #!/usr/bin/perl -w
+
 use strict;
+use warnings;
 
 use English;
 use Readonly;
@@ -60,7 +62,7 @@ EOF
         $from, $dest, $mailbox, $caller, $duration, $date, $body;
 
     eval {
-        my $client = new NGCP::API::Client;
+        my $client = NGCP::API::Client->new();
 
         my $res = $client->request('GET', "/api/subscribers/?alias=$mailbox");
         unless($res->is_success) {
