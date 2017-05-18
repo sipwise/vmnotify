@@ -1,0 +1,7 @@
+Verified+1: Jenkins Jenkins
+Code-Review+2: Kirill Solomko <ksolomko@sipwise.com>
+Submitted-by: Guillem Jover <gjover@sipwise.com>
+Submitted-at: Thu, 18 May 2017 15:16:46 +0200
+Reviewed-on: http://gerrit.mgm.sipwise.com/13261
+Project: vmnotify
+Branch: refs/heads/master
