@@ -231,7 +231,7 @@ sub main {
 
         send_mwi_notify();
         if ($extended &&
-            $CONFIG->{EXT_NOTIFY} && $CONFIG->{EXT_NOTIFY} eq "yes") {
+            $CONFIG{EXT_NOTIFY} && $CONFIG{EXT_NOTIFY} eq "yes") {
             send_ext_notify();
         }
     };
