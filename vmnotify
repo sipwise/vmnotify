@@ -133,9 +133,10 @@ EOF
         dsthost => $CONFIG{SERVER},
 
     );
-    $macros{bodylen} = length($macros{body_mw})+2+length($macros{body_vm})+2;
 
-    map { $mwi =~ s/\$$_\$/$macros{$_}/mgi; } keys %macros;
+    $macros{bodylen} = 2+length($macros{body_mw})+2+length($macros{body_vm})+2;
+
+    map { $mwi =~ s/\$$_\$/$macros{$_}/gi; } keys %macros;
 
     my $sock = IO::Socket::INET->new(PeerAddr => $CONFIG{SERVER},
                                      LocalAddr => $CONFIG{LOCAL_IP},
