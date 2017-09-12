@@ -133,7 +133,10 @@ EOF
         dsthost => $CONFIG{SERVER},
 
     );
-    $macros{bodylen} = length($macros{body_mw})+2+length($macros{body_vm})+2;
+
+    use bytes;
+    $macros{bodylen} = length($macros{body_mw})+length($macros{body_vm});
+    no bytes;
 
     map { $mwi =~ s/\$$_\$/$macros{$_}/mgi; } keys %macros;
 
