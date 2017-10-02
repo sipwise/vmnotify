@@ -1,3 +1,13 @@
+ngcp-vmnotify (5.5.1.0+0~mr5.5.1.0) unstable; urgency=medium
+
+  [ Kirill Solomko ]
+  * [c9cd8dc] TT#18318 vmnotify: fix CONFIG call error
+  * [d951cae] TT#20339 fix mwi.sip CR+LF
+
+  [ Sipwise Jenkins Builder ]
+
+ -- Sipwise Jenkins Builder <jenkins@sipwise.com>  Mon, 02 Oct 2017 23:46:43 +0200
+
 ngcp-vmnotify (5.5.0.0+0~mr5.5.0.0) unstable; urgency=medium
 
   [ Guillem Jover ]
