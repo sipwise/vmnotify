@@ -6,7 +6,7 @@ CSeq: 1 NOTIFY
 Call-Id: $CALL_ID$
 Contact: <sip:voicebox@127.0.0.1:5070>
 Event: message-summary
-User-Agent: Sipwise NGCP Application Server 5.X
+User-Agent: Sipwise NGCP Application Server
 Content-Type: application/simple-message-summary
 Content-Length: $BODYLEN$
 
