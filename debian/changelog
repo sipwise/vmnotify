@@ -1,3 +1,15 @@
+ngcp-vmnotify (6.1.0.0+0~mr6.1.0.0) unstable; urgency=medium
+
+  [ Alexander Lutay ]
+  * [8647202] TT#21056 Update MWI version (remove 5.X, it is 6.X now and will be set from templates)
+
+  [ Guillem Jover ]
+  * [77cce54] TT#22072 Update packaging
+
+  [ Sipwise Jenkins Builder ]
+
+ -- Sipwise Jenkins Builder <jenkins@sipwise.com>  Wed, 06 Dec 2017 00:18:25 +0100
+
 ngcp-vmnotify (6.0.0.0+0~mr6.0.0.0) unstable; urgency=medium
 
   [ Kirill Solomko ]
