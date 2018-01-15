@@ -1,5 +1,5 @@
 NOTIFY sip:$user$@$dsthost$;transport=UDP SIP/2.0
-Via: SIP/2.0/UDP 127.0.0.1:5081;branch=$BRANCH$;rport;alias'
+Via: SIP/2.0/UDP 127.0.0.1:5081;branch=$BRANCH$;rport;alias
 To: <sip:$MBID$@$dsthost$>
 From: <sip:voicebox@voicebox.sipwise.local>;tag=4711
 CSeq: 1 NOTIFY
