@@ -1,3 +1,13 @@
+ngcp-vmnotify (6.2.1.0+0~mr6.2.1.0) unstable; urgency=medium
+
+  [ Alexander Lutay ]
+  * [889c17e] TT#33026 Drop dependency on uuid-runtime as vmnotify doesn't use it
+  * [a7c0d98] TT#33911 Perform 'wrap-and-sort -sat'
+
+  [ Sipwise Jenkins Builder ]
+
+ -- Sipwise Jenkins Builder <jenkins@sipwise.com>  Tue, 03 Apr 2018 22:36:15 +0200
+
 ngcp-vmnotify (6.2.0.0+0~mr6.2.0.0) unstable; urgency=medium
 
   * New release.
