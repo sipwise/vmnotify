@@ -1,3 +1,12 @@
+ngcp-vmnotify (6.1.3.0+0~mr6.1.3.0) unstable; urgency=medium
+
+  [ Marco Capetta ]
+  * [aae908e] TT#22835 Remove unnecessary quote from field VIA in MWI notification
+
+  [ Sipwise Jenkins Builder ]
+
+ -- Sipwise Jenkins Builder <jenkins@sipwise.com>  Mon, 14 May 2018 23:07:32 +0200
+
 ngcp-vmnotify (6.1.2.0+0~mr6.1.2.0) unstable; urgency=medium
 
   * New release.
