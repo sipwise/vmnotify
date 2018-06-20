@@ -164,15 +164,19 @@ sub send_ext_notify {
         prefix => 'voicemail',
         suffix => 'notify',
         caller => $data{from},
-        caleee => $data{user},
+        callee => $data{user},
         callid => $data{callid},
         token  => '',
     );
 
+    my $mm = 0;
     foreach my $v (qw(prefix suffix caller callee callid token)) {
         my $t = $url_ph{$v} ? $url_ph{$v}."/" : "";
-        $url =~ s/\$\{$v\}/$t/g;
+        if ($url =~ s/\$\{$v\}/$t/g) {
+            $mm = 1;
+        }
     }
+    $url = substr($url, 0, -1) if $mm;
 
     my $ua = new LWP::UserAgent;
     $ua->agent('NGCP vmnotify 1.0');
