@@ -164,7 +164,7 @@ sub send_ext_notify {
         prefix => 'voicemail',
         suffix => 'notify',
         caller => $data{from},
-        caleee => $data{user},
+        callee => $data{user},
         callid => $data{callid},
         token  => '',
     );
