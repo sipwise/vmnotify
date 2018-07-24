@@ -1,3 +1,12 @@
+ngcp-vmnotify (6.4.1.0+0~mr6.4.1.0) unstable; urgency=medium
+
+  [ Kirill Solomko ]
+  * [d40e74d] TT#39048 send_ext_notify(): fix typo, remove trailing slash
+
+  [ Sipwise Jenkins Builder ]
+
+ -- Sipwise Jenkins Builder <jenkins@sipwise.com>  Tue, 24 Jul 2018 13:44:16 +0200
+
 ngcp-vmnotify (6.4.0.0+0~mr6.4.0.0) unstable; urgency=medium
 
   [ Marco Capetta ]
