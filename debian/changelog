@@ -1,3 +1,9 @@
+ngcp-vmnotify (7.0.0.0+0~mr7.0.0.0) unstable; urgency=medium
+
+  * New release.
+
+ -- Sipwise Jenkins Builder <jenkins@sipwise.com>  Mon, 24 Sep 2018 19:01:52 +0200
+
 ngcp-vmnotify (6.5.0.0+0~mr6.5.0.0) unstable; urgency=medium
 
   [ Kirill Solomko ]
