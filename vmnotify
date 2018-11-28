@@ -22,6 +22,7 @@ use HTTP::Request;
 use LWP::UserAgent;
 use JSON;
 use IO::Socket::SSL;
+use DBI;
 
 unless (scalar @ARGV) {
     print <<USAGE;
@@ -32,7 +33,7 @@ $PROGRAM_NAME [options]
 Options:
     [basic]
     <context>         - voicemail context (default: "default")
-    <user>            - destination user
+    <mailbox>         - mailbox number
     <new messages>    - amount of new messages
     [old messages]    - amount of old messages
     [urgent messages] - amount of urgent messages
@@ -80,6 +81,17 @@ EOF
 my $log = Log::Log4perl->get_logger("vmnotify");
 my %data = ();
 
+my $dsn = "DBI:mysql:database=kamailio;host=$CONFIG{DB_HOST};port=$CONFIG{DB_PORT}";
+my $dbh = DBI->connect($dsn, $CONFIG{DB_USER}, $CONFIG{DB_PASS}) or die
+    "Failed to connect to central db: $DBI::errstr";
+my $sth_etag = $dbh->prepare(
+    "select etag from presentity where username=? and domain=? ".
+    "and event='message-summary' order by received_time desc limit 1"
+) or die "Failed to prepare etag query: $DBI::errstr";
+my $sth_userdom = $dbh->prepare(
+    "select username, domain from dbaliases where alias_username=?"
+) or die "Failed to prepare userdom query: $DBI::errstr";
+
 #----------------------------------------------------------------------
 sub log_syslog {
     my $str = shift;
@@ -103,10 +115,10 @@ sub gen_branchid {
         map { $list[int(rand($#list))] } (1..8);
 }
 
-sub send_mwi_notify {
-
-    open(my $fh, "<", $CONFIG{SIPFILE})
-        or die "Cannot open file: $CONFIG{SIPFILE}";
+sub load_mwi_file {
+    my $path = shift;
+    open(my $fh, "<", $path)
+        or die "Cannot open file '$path': $!";
     binmode $fh;
     my $mwi;
     while (<$fh>) {
@@ -114,29 +126,12 @@ sub send_mwi_notify {
         $mwi .= $_;
     }
     close $fh;
+    return $mwi; 
+}
 
-    die "Empty MWI. Cannot send SIP MWI notification\n" unless $mwi;
-
-    my $log_str = sprintf <<EOF,
-vmnotify to=%s: context=%s new=%d old=%d urgent=%d
-EOF
-        @data{qw(user context new old urgent)};
-    chomp $log_str;
-
-    my %macros = (
-        body_mw => "Messages-Waiting: ". ($data{new} ? "yes" : "no"),
-        body_vm => "Voice-Message: $data{new}/$data{old} ($data{urgent}/0)",
-        call_id => $data{callid},
-        mbid    => $data{user},
-        branch  => gen_branchid(),
-        user    => $data{user},
-        dsthost => $CONFIG{SERVER},
-
-    );
-
-    $macros{bodylen} = 2+length($macros{body_mw})+2+length($macros{body_vm})+2;
-
-    map { $mwi =~ s/\$$_\$/$macros{$_}/gi; } keys %macros;
+sub send_mwi {
+    my $log_str = shift;
+    my $mwi = shift;
 
     my $sock = IO::Socket::INET->new(PeerAddr => $CONFIG{SERVER},
                                      LocalAddr => $CONFIG{LOCAL_IP},
@@ -150,6 +145,44 @@ EOF
         or die sprintf "Cannot send %s error=%s\n", $log_str, $ERRNO;
 
     $sock->close();
+}
+
+sub send_mwi_notify {
+    my $macros = shift;
+    my $mwi = load_mwi_file($CONFIG{SIPFILE});
+    die "Empty MWI. Cannot send SIP MWI notification\n" unless $mwi;
+
+    my $log_str = sprintf <<EOF,
+vmnotify to=%s: context=%s new=%d old=%d urgent=%d
+EOF
+        @data{qw(mailbox context new old urgent)};
+    chomp $log_str;
+
+    $macros->{bodylen} = 2+length($macros->{body_mw})+2+length($macros->{body_vm})+2;
+    map { $mwi =~ s/\$$_\$/$macros->{$_}/gi; } keys %{ $macros };
+    send_mwi($log_str, $mwi);
+
+    $log->debug($log_str);
+
+    return;
+}
+
+sub send_mwi_publish {
+    my $macros = shift;
+    my $mwi = load_mwi_file($CONFIG{SIPPUBLISHFILE});
+    die "Empty PUBLISH MWI. Cannot publish SIP MWI notification\n" unless $mwi;
+
+    my $log_str = sprintf <<EOF,
+vmnotify to=%s: context=%s new=%d old=%d urgent=%d
+EOF
+        @data{qw(mailbox context new old urgent)};
+    chomp $log_str;
+
+    $macros->{bodylen} = 2+length($macros->{body_mw})+2+length($macros->{body_vm})+2;
+    map { $mwi =~ s/\$$_\$/$macros->{$_}/gi; } keys %{ $macros };
+    $mwi =~ s/\r\nSTRIP\r\n/\r\n/g;
+    $log->debug($mwi);
+    send_mwi($log_str, $mwi);
 
     $log->debug($log_str);
 
@@ -164,7 +197,7 @@ sub send_ext_notify {
         prefix => 'voicemail',
         suffix => 'notify',
         caller => $data{from},
-        callee => $data{user},
+        callee => $data{mailbox},
         callid => $data{callid},
         token  => '',
     );
@@ -191,7 +224,7 @@ sub send_ext_notify {
 
     my $json = {
         caller       => $data{from},
-        callee       => $data{user},
+        callee       => $data{mailbox},
         recording_id => $data{msgnum},
         timestamp    => $data{date},
         duration     => $data{duration},
@@ -216,12 +249,31 @@ EOF
     return;
 }
 
+sub get_etag {
+        my $user = shift;
+        my $domain = shift;
+        $sth_etag->execute($user, $domain)
+            or die "Failed to load ETag for $user\@$domain";
+        my ($etag) = $sth_etag->fetchrow_array();
+        $sth_etag->finish();
+        return $etag;
+}
+
+sub get_user_domain {
+        my $alias = shift;
+        $sth_userdom->execute($alias)
+            or die "Failed to load user and domain for $alias";
+        my ($user, $domain) = $sth_userdom->fetchrow_array();
+        $sth_userdom->finish();
+        return ($user, $domain);
+}
+
 sub main {
     eval {
         die "Incorrect arguments list" if $#ARGV < 2;
 
         my $idx = 0;
-        foreach my $arg (qw(context user new old urgent)) {
+        foreach my $arg (qw(context mailbox new old urgent)) {
             $data{$arg} = $ARGV[$idx] // 0;
             $idx++;
         }
@@ -233,8 +285,27 @@ sub main {
         }
 
         $data{callid} = gen_callid().'@voip.sipwise.local';
+        ($data{user}, $data{domain}) = get_user_domain($data{mailbox});
+        my $etag = get_etag($data{user}, $data{domain});
+        my $sipifmatch = defined $etag ? "SIP-If-Match: $etag" : "STRIP";
 
-        send_mwi_notify();
+        my %macros = (
+            body_mw => "Messages-Waiting: ". ($data{new} ? "yes" : "no"),
+            body_vm => "Voice-Message: $data{new}/$data{old} ($data{urgent}/0)",
+            call_id => $data{callid},
+            branch  => gen_branchid(),
+            user    => $data{user},
+            domain  => $data{domain},
+            sipifmatch => $sipifmatch,
+        );
+
+        send_mwi_notify(\%macros);
+
+        # use a different call-id for publish vs the notify above to make traces more clear
+        # that they actually don't belong together
+        $macros{call_id} = gen_callid().'@voip.sipwise.local';
+        send_mwi_publish(\%macros);
+
         if ($extended &&
             $CONFIG{EXT_NOTIFY} && $CONFIG{EXT_NOTIFY} eq "yes") {
             send_ext_notify();
