@@ -10,7 +10,17 @@ Homepage: https://www.sipwise.com/
 Package: ngcp-vmnotify
 Architecture: all
 Depends:
+ libconfig-any-perl,
+ libdbd-mysql-perl,
+ libdbi-perl,
+ libio-socket-ssl-perl,
+ libjson-perl,
+ liblog-log4perl-perl,
+ libossp-uuid-perl,
+ libreadonly-perl,
+ ngcp-api-tools,
  sipsak (>= 0.9.6+git20160713),
  ${misc:Depends},
+ ${perl:Depends},
 Description: mwi generator for NGCP platform
  This program generates mwi notifications for the NGCP voicemail system.
