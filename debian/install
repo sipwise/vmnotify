@@ -1,4 +1,0 @@
-mwi.sip		etc/ngcp-vmnotify/
-vmnotify	usr/bin/
-vmnotify.conf	etc/ngcp-vmnotify/
-vmsmsnotify	usr/bin/
