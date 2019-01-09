@@ -1,3 +1,16 @@
+ngcp-vmnotify (7.2.0.0+0~mr7.2.0.0) unstable; urgency=medium
+
+  [ Andreas Granig ]
+  * [9bd363f] TT#47976 Also use MWI PUBLISH from vmnotify
+
+  [ Guillem Jover ]
+  * [51221bb] TT#49150 Namespace program names with ngcp-
+  * [ff661b9] TT#49150 Add missing dependencies
+
+  [ Sipwise Jenkins Builder ]
+
+ -- Sipwise Jenkins Builder <jenkins@sipwise.com>  Wed, 09 Jan 2019 22:08:30 +0100
+
 ngcp-vmnotify (7.1.0.0+0~mr7.1.0.0) unstable; urgency=medium
 
   * New release.
