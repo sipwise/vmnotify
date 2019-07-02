@@ -16,7 +16,7 @@ Depends:
  libio-socket-ssl-perl,
  libjson-perl,
  liblog-log4perl-perl,
- libngcp-api-client-perl | ngcp-api-tools,
+ libngcp-api-client-perl,
  libossp-uuid-perl,
  libreadonly-perl,
  sipsak (>= 0.9.6+git20160713),
