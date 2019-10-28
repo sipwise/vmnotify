@@ -297,6 +297,7 @@ sub main {
             user    => $data{user},
             domain  => $data{domain},
             sipifmatch => $sipifmatch,
+            wmi_id  => $data{msgnum},
         );
 
         send_mwi_notify(\%macros);
