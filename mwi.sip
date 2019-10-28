@@ -7,6 +7,7 @@ Call-Id: $CALL_ID$
 Contact: <sip:voicebox@127.0.0.1:5070>
 Event: message-summary
 User-Agent: Sipwise NGCP Application Server
+P-NGCP-MWI-Id: $WMIID$
 Content-Type: application/simple-message-summary
 Content-Length: $BODYLEN$
 
