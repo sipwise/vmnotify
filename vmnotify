@@ -288,6 +288,7 @@ sub main {
         ($data{user}, $data{domain}) = get_user_domain($data{mailbox});
         my $etag = get_etag($data{user}, $data{domain});
         my $sipifmatch = defined $etag ? "SIP-If-Match: $etag" : "STRIP";
+        my $mwiid = $data{msgnum} ge 0 ? "P-NGCP-MWI-Id: $data{msgnum}\n": "";
 
         my %macros = (
             body_mw => "Messages-Waiting: ". ($data{new} ? "yes" : "no"),
@@ -297,6 +298,7 @@ sub main {
             user    => $data{user},
             domain  => $data{domain},
             sipifmatch => $sipifmatch,
+            mwi_id => $mwiid,
         );
 
         send_mwi_notify(\%macros);
