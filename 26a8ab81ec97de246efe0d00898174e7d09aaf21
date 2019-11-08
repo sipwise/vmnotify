@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9d225139_99aee7c1",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1000004
+      },
+      "writtenOn": "2019-11-08T12:17:29Z",
+      "side": 1,
+      "message": "1. commit message max line width is 60 chars\n2. the general standard of good commit messages is to use verbs in their infinitive forms, so \"Adding\" -\u003e \"Add\" (same applied to \"Added\" -\u003e \"Add\").\n3. do not use any personal Sipwise mentions in commit messages as we have most of repositories published on github, also they do not carry any info.\n4. the general rule of a thumb for good commit messages is to describe:\n   - header line contains only very compact change description\n   - new line between the header line (1st line) and the commit message description\n   - description contains: what is changed\n   - description contains: why that is changed\n\n\nGood commit message example:\n\n\nTT#70068 Add new header to MWI SIP message.\n\n\n    - new header P-NGCP-MWI-Id, that contains the internal NGCP message id\n      and needed to distinguish new/old messages order within a subscriber \n      to perform selective messages handling.",
+      "range": {
+        "startLine": 7,
+        "startChar": 9,
+        "endLine": 7,
+        "endChar": 135
+      },
+      "revId": "26a8ab81ec97de246efe0d00898174e7d09aaf21",
+      "serverId": "85315e57-5f03-49c3-83f8-201ae2313a75",
+      "unresolved": false
+    }
+  ]
+}
