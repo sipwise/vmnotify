@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a688899_41d055f4",
+        "filename": "mwi.sip",
+        "patchSetId": 7
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1000060
+      },
+      "writtenOn": "2019-11-14T13:19:31Z",
+      "side": 1,
+      "message": "unfortunate change",
+      "revId": "5cbe5d9d9b42744343e0d695e109c7e543856434",
+      "serverId": "85315e57-5f03-49c3-83f8-201ae2313a75",
+      "unresolved": false
+    }
+  ]
+}
