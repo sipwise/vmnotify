@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bf83ed15_27598ad8",
+        "filename": "vmnotify",
+        "patchSetId": 9
+      },
+      "lineNbr": 291,
+      "author": {
+        "id": 1000060
+      },
+      "writtenOn": "2019-11-15T10:48:59Z",
+      "side": 1,
+      "message": "It\u0027 OK (in my tests) with a \"\\n\" when the message number is present:\n\nmy $mwiid \u003d $data{msgnum} ge 0 ? \"P-NGCP-MWI-Id: $data{msgnum}\\n\": \"\";",
+      "revId": "51dc309806530d30f23f194bf4e7352251231d7e",
+      "serverId": "85315e57-5f03-49c3-83f8-201ae2313a75",
+      "unresolved": true
+    }
+  ]
+}
