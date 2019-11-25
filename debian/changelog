@@ -1,3 +1,12 @@
+ngcp-vmnotify (8.1.1.0+0~mr8.1.1.0) unstable; urgency=medium
+
+  [ Fabricio Santolin da Silva ]
+  * [1610461] TT#70068 Add new header to MWI SIP message.
+
+  [ Sipwise Jenkins Builder ]
+
+ -- Sipwise Jenkins Builder <jenkins@sipwise.com>  Mon, 25 Nov 2019 15:01:28 +0100
+
 ngcp-vmnotify (8.1.0.0+0~mr8.1.0.0) unstable; urgency=medium
 
   * New release.
