@@ -34,6 +34,7 @@ Options:
     [basic]
     <context>         - voicemail context (default: "default")
     <mailbox>         - mailbox number
+    <uuid>            - subscriber uuid
     <new messages>    - amount of new messages
     [old messages]    - amount of old messages
     [urgent messages] - amount of urgent messages
@@ -89,7 +90,7 @@ my $sth_etag = $dbh->prepare(
     "and event='message-summary' order by received_time desc limit 1"
 ) or die "Failed to prepare etag query: $DBI::errstr";
 my $sth_userdom = $dbh->prepare(
-    "select username, domain from dbaliases where alias_username=?"
+    "select username, domain from subscriber where uuid=?"
 ) or die "Failed to prepare userdom query: $DBI::errstr";
 
 #----------------------------------------------------------------------
@@ -153,7 +154,7 @@ sub send_mwi_notify {
     die "Empty MWI. Cannot send SIP MWI notification\n" unless $mwi;
 
     my $log_str = sprintf <<EOF,
-vmnotify to=%s: context=%s new=%d old=%d urgent=%d
+vmnotify to=%s uuid=%s: context=%s new=%d old=%d urgent=%d
 EOF
         @data{qw(mailbox context new old urgent)};
     chomp $log_str;
@@ -173,9 +174,9 @@ sub send_mwi_publish {
     die "Empty PUBLISH MWI. Cannot publish SIP MWI notification\n" unless $mwi;
 
     my $log_str = sprintf <<EOF,
-vmnotify to=%s: context=%s new=%d old=%d urgent=%d
+vmnotify to=%s uuid=%s: context=%s new=%d old=%d urgent=%d
 EOF
-        @data{qw(mailbox context new old urgent)};
+        @data{qw(mailbox uuid context new old urgent)};
     chomp $log_str;
 
     $macros->{bodylen} = 2+length($macros->{body_mw})+2+length($macros->{body_vm})+2;
@@ -273,7 +274,7 @@ sub main {
         die "Incorrect arguments list" if $#ARGV < 2;
 
         my $idx = 0;
-        foreach my $arg (qw(context mailbox new old urgent)) {
+        foreach my $arg (qw(context mailbox uuid new old urgent)) {
             $data{$arg} = $ARGV[$idx] // 0;
             $idx++;
         }
@@ -285,7 +286,7 @@ sub main {
         }
 
         $data{callid} = gen_callid().'@voip.sipwise.local';
-        ($data{user}, $data{domain}) = get_user_domain($data{mailbox});
+        ($data{user}, $data{domain}) = get_user_domain($data{uuid});
         my $etag = get_etag($data{user}, $data{domain});
         my $sipifmatch = defined $etag ? "SIP-If-Match: $etag" : "STRIP";
         my $mwiid = $data{msgnum} ge 0 ? "P-NGCP-MWI-Id: $data{msgnum}\n": "";
