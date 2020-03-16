@@ -1,3 +1,10 @@
+ngcp-vmnotify (8.4.0.0+0~mr8.4.0.0) unstable; urgency=medium
+
+  [ Kirill Solomko ]
+  * [2a0d2c3] TT#76362 vmnotify subscriber lookup by uuid
+
+ -- Sipwise Jenkins Builder <jenkins@sipwise.com>  Mon, 16 Mar 2020 11:19:27 +0100
+
 ngcp-vmnotify (8.3.0.0+0~mr8.3.0.0) unstable; urgency=medium
 
   * New release.
