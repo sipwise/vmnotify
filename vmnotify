@@ -156,10 +156,10 @@ sub send_mwi_notify {
     my $log_str = sprintf <<EOF,
 vmnotify to=%s uuid=%s: context=%s new=%d old=%d urgent=%d
 EOF
-        @data{qw(mailbox context new old urgent)};
+        @data{qw(mailbox uuid context new old urgent)};
     chomp $log_str;
 
-    $macros->{bodylen} = 2+length($macros->{body_mw})+2+length($macros->{body_vm})+2;
+    $macros->{bodylen} = length($macros->{body_mw})+2+length($macros->{body_vm})+2;
     map { $mwi =~ s/\$$_\$/$macros->{$_}/gi; } keys %{ $macros };
     send_mwi($log_str, $mwi);
 
@@ -289,7 +289,7 @@ sub main {
         ($data{user}, $data{domain}) = get_user_domain($data{uuid});
         my $etag = get_etag($data{user}, $data{domain});
         my $sipifmatch = defined $etag ? "SIP-If-Match: $etag" : "STRIP";
-        my $mwiid = $data{msgnum} ge 0 ? "P-NGCP-MWI-Id: $data{msgnum}\n": "";
+        my $mwiid = ($data{msgnum} && $data{msgnum} ge 0) ? "P-NGCP-MWI-Id: $data{msgnum}\n": "";
 
         my %macros = (
             body_mw => "Messages-Waiting: ". ($data{new} ? "yes" : "no"),
