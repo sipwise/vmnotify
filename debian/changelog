@@ -1,3 +1,10 @@
+ngcp-vmnotify (8.5.1.0+0~mr8.5.1.0) unstable; urgency=medium
+
+  [ Kirill Solomko ]
+  * [014bcc4] TT#85255 fix content-length mismatch
+
+ -- Sipwise Jenkins Builder <jenkins@sipwise.com>  Tue, 14 Jul 2020 11:55:41 +0200
+
 ngcp-vmnotify (8.5.0.0+0~mr8.5.0.0) unstable; urgency=medium
 
   * New release.
