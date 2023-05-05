@@ -159,7 +159,7 @@ EOF
         @data{qw(mailbox uuid context new old urgent)};
     chomp $log_str;
 
-    $macros->{bodylen} = length($macros->{body_mw})+2+length($macros->{body_vm})+2;
+    $macros->{bodylen} = length($macros->{body_mw})+2+length($macros->{body_vm})+4;
     map { $mwi =~ s/\$$_\$/$macros->{$_}/gi; } keys %{ $macros };
     send_mwi($log_str, $mwi);
 
@@ -179,7 +179,7 @@ EOF
         @data{qw(mailbox uuid context new old urgent)};
     chomp $log_str;
 
-    $macros->{bodylen} = 2+length($macros->{body_mw})+2+length($macros->{body_vm})+2;
+    $macros->{bodylen} = length($macros->{body_mw})+2+length($macros->{body_vm})+4;
     map { $mwi =~ s/\$$_\$/$macros->{$_}/gi; } keys %{ $macros };
     $mwi =~ s/\r\nSTRIP\r\n/\r\n/g;
     $log->debug($mwi);
@@ -285,11 +285,49 @@ sub main {
             $idx++;
         }
 
+        my $num_args = scalar @ARGV;
+        for (my $i = 10; $i < $num_args; $i += 3) {
+            my $arg1 = $ARGV[$i];   # action: (a)dd/(r)ead/(d)elete
+            my $arg2 = $ARGV[$i+1]; # id
+            my $arg3 = $ARGV[$i+2]; # action
+
+            my %charToWord = (
+                'a' => 'add',
+                'r' => 'read',
+                'd' => 'delete',
+                'u' => 'undelete',
+                'm' => 'moved',
+                'x' => 'unread',
+            );
+
+            $arg1 = $charToWord{$arg1} // 0;
+
+            if ($arg2 =~ /^[a-zA-Z0-9-]+$/) {
+                if (exists $data{vm}{$arg2}) {
+                    push @{$data{vm}{$arg2}}, {
+                        action => $arg1,
+                        id => $arg2,
+                        callid => $arg3
+                    };
+                } else {
+                    $data{vm}{$arg2} = [{
+                        action => $arg1,
+                        id => $arg2,
+                        callid => $arg3
+                    }];
+                }
+            }
+        }
+
         $data{callid} = gen_callid().'@voip.sipwise.local';
         ($data{user}, $data{domain}) = get_user_domain($data{uuid});
         my $etag = get_etag($data{user}, $data{domain});
         my $sipifmatch = defined $etag ? "SIP-If-Match: $etag" : "STRIP";
-        my $mwiid = ($data{msgnum} && $data{msgnum} ge 0) ? "P-NGCP-MWI-Id: $data{msgnum}\n": "";
+        my $action;
+        foreach my $key (sort keys %{$data{'vm'}}) {
+            my @values = map { "P-NGCP-MWI-action: $_->{action} $_->{id} $_->{callid}" } @{$data{'vm'}{$key}};
+            $action .= "\r\n".join("\r\n", @values);
+        }
 
         my %macros = (
             body_mw => "Messages-Waiting: ". ($data{new} ? "yes" : "no"),
@@ -299,7 +337,7 @@ sub main {
             user    => $data{user},
             domain  => $data{domain},
             sipifmatch => $sipifmatch,
-            mwi_id => $mwiid,
+            mwi_action => $action
         );
 
         send_mwi_notify(\%macros);

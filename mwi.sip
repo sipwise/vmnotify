@@ -9,7 +9,7 @@ Event: message-summary
 User-Agent: Sipwise NGCP Application Server
 Content-Type: application/simple-message-summary
 Content-Length: $BODYLEN$
-$MWI_ID$
+
 $BODY_MW$
 $BODY_VM$
 
