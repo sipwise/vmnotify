@@ -16,7 +16,7 @@ use Readonly;
 use Config::Any;
 use Sys::Syslog qw(:DEFAULT :macros setlogsock);
 use IO::Socket;
-use Data::UUID;
+use UUID;
 use Data::Dumper;
 use HTTP::Request;
 use LWP::UserAgent;
@@ -107,7 +107,7 @@ sub log_syslog {
 sub gen_callid {
     my $self = shift;
 
-    return Data::UUID->create_str();
+    return UUID::uuid();
 }
 
 sub gen_branchid {
