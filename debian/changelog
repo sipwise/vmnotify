@@ -1,3 +1,10 @@
+ngcp-vmnotify (13.0.1.0+0~mr13.0.1.0) unstable; urgency=medium
+
+  [ Guillem Jover ]
+  * [e4933ee] MT#61074 Switch from obsolete libossp-uuid-perl to libuuid-perl
+
+ -- Sipwise Jenkins Builder <jenkins@sipwise.com>  Tue, 01 Oct 2024 10:03:10 +0200
+
 ngcp-vmnotify (13.0.0.0+0~mr13.0.0.0) unstable; urgency=medium
 
   * New release.
