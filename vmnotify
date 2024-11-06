@@ -212,7 +212,7 @@ sub send_ext_notify {
     }
     $url = substr($url, 0, -1) if $mm;
 
-    my $ua = new LWP::UserAgent;
+    my $ua = LWP::UserAgent->new;
     $ua->agent('NGCP vmnotify 1.0');
 
     $ua->ssl_opts(
@@ -220,7 +220,7 @@ sub send_ext_notify {
         SSL_verify_mode => IO::Socket::SSL::SSL_VERIFY_NONE,
     );
 
-    my $r = new HTTP::Request("POST", $url);
+    my $r = HTTP::Request->new("POST", $url);
     $r->header('Content-Type', 'application/json');
 
     my $json = {
