@@ -250,6 +250,19 @@ EOF
     return;
 }
 
+sub transcribe {
+    my $msgnum = 0 + $data{msgnum};
+    my $fh;
+    open($fh, '-|', "ngcp-invoke-task --task transcribe_voicemail --dst localhost --data " .
+    	"'{\"msgnum\":$msgnum,\"uuid\":\"$data{uuid}\"}' 2>&1 < /dev/null");
+    my @out = <$fh>;
+    close($fh);
+    my $status = $?;
+    if ($status) {
+        $log->warn("Failed to invoke transcription, exit code $status, output: @out");
+    }
+}
+
 sub get_etag {
         my $user = shift;
         my $domain = shift;
@@ -281,7 +294,7 @@ sub main {
 
         my $extended = 1;
         foreach my $arg (qw(msgnum from date duration)) {
-            $data{$arg} = $ARGV[$idx] or $extended = 0;
+            defined($data{$arg} = $ARGV[$idx]) or $extended = 0;
             $idx++;
         }
 
@@ -350,6 +363,11 @@ sub main {
         if ($extended &&
             $CONFIG{EXT_NOTIFY} && $CONFIG{EXT_NOTIFY} eq "yes") {
             send_ext_notify();
+        }
+
+        if ($extended &&
+            $CONFIG{TRANSCRIBE} && $CONFIG{TRANSCRIBE} eq "yes") {
+            transcribe();
         }
     };
     if ($EVAL_ERROR) {

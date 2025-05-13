@@ -1,0 +1,26 @@
+#!/bin/bash
+# Wrapper script to trigger transcription from an rtpengine recording
+################################################################################
+
+set -e
+set -u
+set -o pipefail
+
+if [ "$#" -lt 2 ]; then
+  echo "Usage: $0 <file name> <DB ID>"
+  exit 1
+fi
+
+FILENAME="$1"
+DB_ID="$2"
+
+ENC_DB_ID="$(echo "$DB_ID" | jq -R)"
+
+if [ -n "$FILENAME" ] && [ -f "$FILENAME" ]; then
+  ENC_FILENAME="$(echo "$FILENAME" | jq -R)"
+  exec ngcp-invoke-task --task transcribe_rtpengine_file_recording --dst localhost --data \
+    "{\"filename\":$ENC_FILENAME, \"db_id\":$ENC_DB_ID}"
+fi
+
+exec ngcp-invoke-task --task transcribe_rtpengine_db_recording --dst localhost --data \
+    "{\"db_id\":$ENC_DB_ID}"

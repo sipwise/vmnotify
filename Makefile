@@ -12,3 +12,4 @@ install:
 	$(INSTALL_DIR)				$(DESTDIR)/usr/bin
 	$(INSTALL_PROGRAM)	vmnotify	$(DESTDIR)/usr/bin/ngcp-vmnotify
 	$(INSTALL_PROGRAM)	vmsmsnotify	$(DESTDIR)/usr/bin/ngcp-vmsmsnotify
+	$(INSTALL_PROGRAM)	recnotify	$(DESTDIR)/usr/bin/ngcp-recnotify
