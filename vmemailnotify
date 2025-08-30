@@ -42,7 +42,8 @@ if ($email =~ /^(.*)\@\@\@TRANSCRIPT\@\@\@(.*)$/s) {
     if ($dbh && $uuid && defined($msgnum)) {
         my $sth = $dbh->prepare('select transcript, transcript_status from voicemail_spool where mailboxuser=? and msgnum=?');
 
-        while (1) {
+        my $end = time() + ($CONFIG{TRANSCRIPT_POLL_LIMIT} || 120);
+        while (time() < $end) {
             $sth->execute($uuid, $msgnum - 1);
             my $row = $sth->fetchrow_arrayref();
             $sth->finish();
