@@ -1,3 +1,10 @@
+ngcp-vmnotify (14.0.0.0+0~mr14.0.0.0) unstable; urgency=medium
+
+  [ Richard Fuchs ]
+  * [055e82b] MT#62544 don't wait forever for transcript
+
+ -- Sipwise Jenkins Builder <jenkins@sipwise.com>  Mon, 08 Sep 2025 11:48:24 +0200
+
 ngcp-vmnotify (13.5.0.0+0~mr13.5.0.0) unstable; urgency=medium
 
   [ Richard Fuchs ]
