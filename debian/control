@@ -3,6 +3,15 @@ Section: comm
 Maintainer: Sipwise Development Team <support@sipwise.com>
 Build-Depends:
  debhelper-compat (= 13),
+ libconfig-any-perl,
+ libdbd-mysql-perl,
+ libdbi-perl,
+ libio-socket-ssl-perl,
+ libjson-perl,
+ liblog-log4perl-perl,
+ libngcp-api-client-perl,
+ libreadonly-perl,
+ libuuid-perl,
 Standards-Version: 4.7.2
 Homepage: https://www.sipwise.com/
 
