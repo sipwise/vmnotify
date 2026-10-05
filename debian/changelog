@@ -1,3 +1,10 @@
+ngcp-vmnotify (26.3.1.0+0~mr26.3.1.0) unstable; urgency=medium
+
+  [ Guillem Jover ]
+  * [8422779] MT#62763 build: Add syntax checks at build time for bash and Perl scripts
+
+ -- Sipwise Jenkins Builder <jenkins@sipwise.com>  Mon, 05 Oct 2026 12:38:14 +0200
+
 ngcp-vmnotify (26.3.0.0+0~mr26.3.0.0) unstable; urgency=medium
 
   * New release.
